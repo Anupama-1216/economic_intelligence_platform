@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inflation Radar — Price Intelligence for India</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset & Tokens ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:      #0D0D0C;
+  --ink2:     #3A3A36;
+  --ink3:     #7A7A74;
+  --paper:    #F5F2EC;
+  --paper2:   #EDE9E1;
+  --paper3:   #E2DDD3;
+  --accent:   #C84B2F;
+  --accent2:  #E8A030;
+  --green:    #2C6E49;
+  --greenlt:  #E6F2EC;
+  --redlt:    #FAEAE6;
+  --amberlt:  #FEF3DA;
+  --border:   rgba(13,13,12,0.12);
+  --border2:  rgba(13,13,12,0.06);
+  --radius:   10px;
+  --ff-display: 'Fraunces', serif;
+  --ff-body:    'DM Sans', sans-serif;
+  --ff-mono:    'DM Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--ff-body);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ─── Layout ───────────────────────────────────────────────────── */
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+@media(max-width:800px){
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+
+/* ─── Sidebar ──────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--ink);
+  color: #fff;
+  padding: 28px 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.logo {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 2px;
+}
+.logo-mark {
+  font-family: var(--ff-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.logo-mark span { color: var(--accent); }
+.logo-sub { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--ff-mono); }
+
+.nav-group-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  font-family: var(--ff-mono);
+  margin-bottom: 6px;
+}
+.nav-links { display: flex; flex-direction: column; gap: 2px; }
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  text-align: left;
+  width: 100%;
+  font-family: var(--ff-body);
+}
+.nav-link .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+.nav-link:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.nav-link.active { color: #fff; background: rgba(255,255,255,0.1); }
+.nav-link.active .dot { background: var(--accent); opacity: 1; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+  line-height: 1.6;
+}
+.sidebar-footer strong { color: rgba(255,255,255,0.4); display: block; margin-bottom: 3px; }
+
+/* ─── Main ─────────────────────────────────────────────────────── */
+.main { overflow: hidden; }
+
+/* ─── Topbar ───────────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border2);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.topbar-left { display: flex; flex-direction: column; }
+.page-title { font-family: var(--ff-display); font-size: 20px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); line-height: 1; }
+.page-sub { font-size: 11px; color: var(--ink3); margin-top: 2px; font-family: var(--ff-mono); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.city-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink2);
+  cursor: pointer;
+  font-family: var(--ff-mono);
+}
+.city-pill::before { content: '●'; color: var(--green); font-size: 8px; }
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--ink3);
+  font-family: var(--ff-mono);
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:0.5; transform:scale(0.85); }
+}
+
+/* ─── Content ──────────────────────────────────────────────────── */
+.content { padding: 28px 32px; }
+.section { display: none; }
+.section.active { display: block; }
+.section-header { margin-bottom: 24px; }
+.section-header h2 {
+  font-family: var(--ff-display);
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.section-header h2 em { font-style: italic; color: var(--accent); }
+.section-header p { font-size: 13px; color: var(--ink3); margin-top: 5px; }
+
+/* ─── Stat Row ─────────────────────────────────────────────────── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.stat-label { font-size: 10px; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--ff-mono); margin-bottom: 6px; }
+.stat-value { font-size: 28px; font-weight: 300; font-family: var(--ff-display); color: var(--ink); line-height: 1; }
+.stat-delta { font-size: 11px; margin-top: 4px; font-family: var(--ff-mono); }
+.stat-delta.up { color: var(--accent); }
+.stat-delta.dn { color: var(--green); }
+.stat-delta.flat { color: var(--ink3); }
+
+/* ─── Forecast Table ───────────────────────────────────────────── */
+.forecast-table {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.ft-header {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 90px 80px;
+  padding: 10px 20px;
+  background: var(--paper2);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  font-family: var(--ff-mono);
+  gap: 8px;
+}
+.ft-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px 90px 80px;
+  padding: 14px 20px;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid var(--border2);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ft-row:hover { background: var(--paper); }
+.ft-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+.ft-cat { font-size: 10px; color: var(--ink3); font-family: var(--ff-mono); margin-top: 1px; }
+.ft-now { font-size: 12px; color: var(--ink2); font-family: var(--ff-mono); }
+.bar-wrap { height: 3px; background: var(--paper2); border-radius: 2px; overflow: hidden; margin-top: 5px; }
+.bar-fill { height: 100%; border-radius: 2px; }
+.ft-pct { font-size: 14px; font-weight: 500; font-family: var(--ff-mono); }
+.ft-pct.up { color: var(--accent); }
+.ft-pct.dn { color: var(--green); }
+.risk-badge {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: var(--ff-mono);
+  text-align: center;
+}
+.risk-high  { background: var(--redlt);   color: #8B1A06; }
+.risk-med   { background: var(--amberlt); color: #7A4A00; }
+.risk-low   { background: var(--greenlt); color: #1A4D2E; }
+
+/* ─── 2-col grid ───────────────────────────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media(max-width:900px){ .two-col { grid-template-columns: 1fr; } }
+.three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+@media(max-width:900px){ .three-col { grid-template-columns: 1fr; } }
+
+/* ─── Cards ────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); font-family: var(--ff-mono); margin-bottom: 10px; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+.card-body { font-size: 12px; color: var(--ink2); line-height: 1.65; }
+
+/* ─── Why cards ────────────────────────────────────────────────── */
+.why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 8px; }
+.why-card {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  border-left: 3px solid var(--border);
+}
+.why-card.hot   { border-left-color: var(--accent); }
+.why-card.warm  { border-left-color: var(--accent2); }
+.why-card.cool  { border-left-color: var(--green); }
+.why-icon { font-size: 18px; margin-bottom: 8px; }
+.why-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 5px; }
+.why-body { font-size: 12px; color: var(--ink2); line-height: 1.6; }
+
+/* ─── Simulator ────────────────────────────────────────────────── */
+.sim-wrap {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+@media(max-width:900px){ .sim-wrap { grid-template-columns: 1fr; } }
+.slider-group { display: flex; flex-direction: column; gap: 18px; }
+.slider-item {}
+.slider-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.slider-name { font-size: 12px; color: var(--ink2); }
+.slider-val { font-size: 13px; font-weight: 500; font-family: var(--ff-mono); color: var(--ink); }
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--paper2);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+  cursor: pointer;
+  border: 3px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.impact-box {
+  background: var(--ink);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 22px 22px;
+}
+.impact-box-title { font-family: var(--ff-display); font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.6); margin-bottom: 18px; letter-spacing: -0.01em; }
+.impact-row { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.impact-row .iv { color: #fff; font-family: var(--ff-mono); }
+.impact-row .iup { color: var(--accent2); font-family: var(--ff-mono); }
+.impact-total { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+.impact-total-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--ff-mono); }
+.impact-total-val { font-family: var(--ff-display); font-size: 28px; font-weight: 300; color: var(--accent2); }
+.stress-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+.stress-label-row { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,0.35); font-family: var(--ff-mono); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+.stress-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.stress-fill { height: 100%; background: linear-gradient(90deg, #2C6E49, #E8A030, #C84B2F); transition: width 0.4s ease; border-radius: 2px; }
+.stress-note { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 8px; line-height: 1.5; }
+
+/* ─── Alerts ───────────────────────────────────────────────────── */
+.alert-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.alert-item {
+  display: grid;
+  grid-template-columns: 4px 1fr auto;
+  gap: 0 16px;
+  align-items: start;
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  padding-left: 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.alert-item:hover { background: var(--paper); }
+.alert-stripe { width: 3px; height: 100%; border-radius: 2px; align-self: stretch; }
+.stripe-red   { background: var(--accent); }
+.stripe-amber { background: var(--accent2); }
+.stripe-green { background: var(--green); }
+.alert-body {}
+.alert-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.alert-detail { font-size: 12px; color: var(--ink3); line-height: 1.55; }
+.alert-time { font-size: 10px; color: var(--ink3); font-family: var(--ff-mono); white-space: nowrap; padding-top: 2px; }
+.alert-tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-family: var(--ff-mono); margin-bottom: 5px; }
+.atag-red   { background: var(--redlt);   color: #8B1A06; }
+.atag-amber { background: var(--amberlt); color: #7A4A00; }
+.atag-green { background: var(--greenlt); color: #1A4D2E; }
+
+/* ─── Smart buys ───────────────────────────────────────────────── */
+.reco-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 12px; margin-top: 8px; }
+.reco-card {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.reco-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,13,12,0.06); }
+.reco-action-pill {
+  display: inline-block;
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: var(--ff-mono);
+  font-weight: 500;
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+.pill-buy   { background: var(--greenlt); color: var(--green); }
+.pill-wait  { background: var(--amberlt); color: #7A4A00; }
+.pill-alt   { background: #EDE8F8;        color: #42366A; }
+.reco-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+.reco-body  { font-size: 12px; color: var(--ink2); line-height: 1.6; }
+.reco-arrow { font-family: var(--ff-mono); color: var(--ink3); font-size: 11px; margin-top: 10px; }
+
+/* ─── Regional ─────────────────────────────────────────────────── */
+.region-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.region-tab {
+  padding: 7px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink2);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--ff-mono);
+}
+.region-tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.region-tab:hover:not(.active) { background: var(--paper2); }
+.region-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 10px; }
+.region-card {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.region-card-name { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); font-family: var(--ff-mono); margin-bottom: 6px; }
+.region-card-val  { font-size: 22px; font-weight: 300; font-family: var(--ff-display); color: var(--ink); line-height: 1; }
+.region-card-tag  { font-size: 11px; margin-top: 4px; font-family: var(--ff-mono); }
+
+/* ─── Divider ──────────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border2); margin: 20px 0; }
+
+/* ─── Disclaimer ───────────────────────────────────────────────── */
+.disclaimer {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--ink3);
+  line-height: 1.6;
+  margin-top: 20px;
+  font-family: var(--ff-mono);
+}
+
+/* ─── Mini chart ───────────────────────────────────────────────── */
+.sparkline { height: 40px; width: 100%; }
+
+/* ─── Animations ───────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.section.active .stat-card,
+.section.active .ft-row,
+.section.active .why-card,
+.section.active .alert-item,
+.section.active .reco-card,
+.section.active .region-card {
+  animation: fadeUp 0.3s ease both;
+}
+.section.active .stat-card:nth-child(1) { animation-delay: 0.04s; }
+.section.active .stat-card:nth-child(2) { animation-delay: 0.08s; }
+.section.active .stat-card:nth-child(3) { animation-delay: 0.12s; }
+.section.active .stat-card:nth-child(4) { animation-delay: 0.16s; }
+
+/* ─── Scroll canvas ────────────────────────────────────────────── */
+.canvas-wrap { margin-top: 16px; background: #fff; border: 1px solid var(--border2); border-radius: var(--radius); padding: 16px 20px; }
+.canvas-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); font-family: var(--ff-mono); margin-bottom: 12px; }
+canvas { display: block; width: 100%; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">Inflation<span>Radar</span></div>
+      <div class="logo-sub">Price Intelligence · India</div>
+    </div>
+
+    <nav>
+      <div class="nav-group-label">Dashboard</div>
+      <div class="nav-links">
+        <button class="nav-link active" onclick="switchSection('forecast',this)">
+          <span class="dot"></span>Forecast
+        </button>
+        <button class="nav-link" onclick="switchSection('why',this)">
+          <span class="dot"></span>Why it's happening
+        </button>
+        <button class="nav-link" onclick="switchSection('simulator',this)">
+          <span class="dot"></span>Budget impact
+        </button>
+        <button class="nav-link" onclick="switchSection('alerts',this)">
+          <span class="dot"></span>Crisis alerts
+        </button>
+        <button class="nav-link" onclick="switchSection('reco',this)">
+          <span class="dot"></span>Smart buys
+        </button>
+        <button class="nav-link" onclick="switchSection('regional',this)">
+          <span class="dot"></span>Regional
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <strong>Data sources</strong>
+      RBI · MOSPI · Agmarknet<br>
+      World Bank · Alpha Vantage<br>
+      NewsAPI · Frankfurter FX
+      <div style="margin-top:10px; color:rgba(255,255,255,0.15)">Updated May 13, 2026 · 09:41 IST</div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title" id="page-title">Price Forecast</div>
+        <div class="page-sub">3-month outlook · all categories</div>
+      </div>
+      <div class="topbar-right">
+        <div class="live-badge"><span class="live-dot"></span>Live</div>
+        <div class="city-pill">Bengaluru, KA ▾</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ FORECAST ══ -->
+      <div class="section active" id="sec-forecast">
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-label">India CPI</div>
+            <div class="stat-value">5.1%</div>
+            <div class="stat-delta up">↑ +0.3% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Food inflation</div>
+            <div class="stat-value">7.8%</div>
+            <div class="stat-delta up">↑ High risk</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Fuel</div>
+            <div class="stat-value">4.2%</div>
+            <div class="stat-delta flat">→ Stable</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Electronics</div>
+            <div class="stat-value">3.9%</div>
+            <div class="stat-delta up">↑ Rising</div>
+          </div>
+        </div>
+
+        <div class="forecast-table">
+          <div class="ft-header">
+            <span>Product</span><span>Now</span><span>3-month signal</span><span>Forecast</span><span>Risk</span>
+          </div>
+
+          <div class="ft-row">
+            <div><div class="ft-name">Tomatoes</div><div class="ft-cat">Vegetables · KA/TN/AP</div><div class="bar-wrap"><div class="bar-fill" style="width:88%;background:#C84B2F;"></div></div></div>
+            <div class="ft-now">₹42/kg</div>
+            <div style="font-size:11px;color:var(--ink3)">Drought stress, AP/TN deficit rainfall</div>
+            <div class="ft-pct up">+38%</div>
+            <div><span class="risk-badge risk-high">Critical</span></div>
+          </div>
+
+          <div class="ft-row">
+            <div><div class="ft-name">Petrol</div><div class="ft-cat">Fuel · Bengaluru</div><div class="bar-wrap"><div class="bar-fill" style="width:72%;background:#E8A030;"></div></div></div>
+            <div class="ft-now">₹102.8/L</div>
+            <div style="font-size:11px;color:var(--ink3)">OPEC+ cuts, Brent above $88/bbl</div>
+            <div class="ft-pct up">+18%</div>
+            <div><span class="risk-badge risk-high">High</span></div>
+          </div>
+
+          <div class="ft-row">
+            <div><div class="ft-name">Coffee</div><div class="ft-cat">Beverages</div><div class="bar-wrap"><div class="bar-fill" style="width:65%;background:#E8A030;"></div></div></div>
+            <div class="ft-now">₹680/250g</div>
+            <div style="font-size:11px;color:var(--ink3)">Brazil arabica crop lowest in decade</div>
+            <div class="ft-pct up">+25%</div>
+            <div><span class="risk-badge risk-high">High</span></div>
+          </div>
+
+          <div class="ft-row">
+            <div><div class="ft-name">Rice</div><div class="ft-cat">Staples</div><div class="bar-wrap"><div class="bar-fill" style="width:42%;background:#E8A030;"></div></div></div>
+            <div class="ft-now">₹45/kg</div>
+            <div style="font-size:11px;color:var(--ink3)">Export curbs partially lifted</div>
+            <div class="ft-pct up">+12%</div>
+            <div><span class="risk-badge risk-med">Medium</span></div>
+          </div>
+
+          <div class="ft-row">
+            <div><div class="ft-name">Smartphones</div><div class="ft-cat">Electronics</div><div class="bar-wrap"><div class="bar-fill" style="width:36%;background:#E8A030;"></div></div></div>
+            <div class="ft-now">₹22,000 avg</div>
+            <div style="font-size:11px;color:var(--ink3)">Rupee weakness, NAND flash tightening</div>
+            <div class="ft-pct up">+9%</div>
+            <div><span class="risk-badge risk-med">Medium</span></div>
+          </div>
+
+          <div class="ft-row">
+            <div><div class="ft-name">Cooking oil</div><div class="ft-cat">Staples</div><div class="bar-wrap"><div class="bar-fill" style="width:22%;background:#2C6E49;"></div></div></div>
+            <div class="ft-now">₹120/L</div>
+            <div style="font-size:11px;color:var(--ink3)">Palm oil supply stabilising, MY recovering</div>
+            <div class="ft-pct dn">+4%</div>
+            <div><span class="risk-badge risk-low">Low</span></div>
+          </div>
+
+          <div class="ft-row">
+            <div><div class="ft-name">Medicines</div><div class="ft-cat">Healthcare</div><div class="bar-wrap"><div class="bar-fill" style="width:15%;background:#2C6E49;"></div></div></div>
+            <div class="ft-now">varies</div>
+            <div style="font-size:11px;color:var(--ink3)">API import prices steady, INR impact minor</div>
+            <div class="ft-pct dn">+3%</div>
+            <div><span class="risk-badge risk-low">Low</span></div>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <div class="canvas-title">Price trajectory — 12-month outlook (indexed to today = 100)</div>
+          <canvas id="chart-main" height="160"></canvas>
+        </div>
+
+        <div class="disclaimer">
+          ⚠ Forecasts are probabilistic, not guaranteed. Confidence: medium–high. Based on commodity signals, APMC wholesale prices, weather data, and macroeconomic indicators. Use as planning input only.
+        </div>
+      </div>
+
+      <!-- ══ WHY ══ -->
+      <div class="section" id="sec-why">
+        <div class="section-header">
+          <h2>What's <em>driving</em> prices right now</h2>
+          <p>Six major signals active across India's supply chain today</p>
+        </div>
+        <div class="why-grid">
+          <div class="why-card hot">
+            <div class="why-icon">🌧️</div>
+            <div class="why-title">Drought in South India</div>
+            <div class="why-body">Deficit rainfall in Andhra Pradesh and Tamil Nadu has cut vegetable yields. Tomatoes, onions, and green leafy vegetables are most affected. Prices may spike 30–40% by August if rains delay.</div>
+          </div>
+          <div class="why-card hot">
+            <div class="why-icon">⛽</div>
+            <div class="why-title">OPEC+ production cuts</div>
+            <div class="why-body">OPEC+ extended voluntary cuts of 1.66 mb/d. Brent crude is holding above $88/bbl. Indian OMCs are absorbing losses but a ₹2–5/L revision looks probable within 4 weeks.</div>
+          </div>
+          <div class="why-card warm">
+            <div class="why-icon">🚢</div>
+            <div class="why-title">Red Sea shipping disruptions</div>
+            <div class="why-body">Cargo rerouted via Cape of Good Hope adds 10–14 days and 12–18% to freight costs. Electronics and imported goods absorb this directly — retail prices follow with a 4–6 week lag.</div>
+          </div>
+          <div class="why-card warm">
+            <div class="why-icon">💱</div>
+            <div class="why-title">Rupee depreciation</div>
+            <div class="why-body">INR has depreciated ~4% vs USD this year. Every dollar-priced import — crude, electronics, edible oils, pharma APIs — costs proportionally more. This is a slow, persistent driver.</div>
+          </div>
+          <div class="why-card warm">
+            <div class="why-icon">☕</div>
+            <div class="why-title">Brazil arabica crop failure</div>
+            <div class="why-body">Minas Gerais recorded its lowest rainfall in a decade. Arabica futures surged 32% over 6 months. Packaged coffee prices in India haven't caught up yet — expect hikes in 6–10 weeks.</div>
+          </div>
+          <div class="why-card cool">
+            <div class="why-icon">🌴</div>
+            <div class="why-title">Palm oil supply recovering</div>
+            <div class="why-body">Malaysian exports are recovering after last year's labour shortage. This is easing sunflower and blended oil prices. A 5–8% reduction in cooking oil costs is expected over the next 6 weeks.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SIMULATOR ══ -->
+      <div class="section" id="sec-simulator">
+        <div class="section-header">
+          <h2>How inflation affects <em>your budget</em></h2>
+          <p>Adjust your expenses to see the 3-month impact</p>
+        </div>
+        <div class="sim-wrap">
+          <div class="slider-group">
+            <div class="slider-item">
+              <div class="slider-meta"><span class="slider-name">Monthly income</span><span class="slider-val" id="lbl-income">₹70,000</span></div>
+              <input type="range" id="sl-income" min="20000" max="200000" step="5000" value="70000" oninput="calcSim()">
+            </div>
+            <div class="slider-item">
+              <div class="slider-meta"><span class="slider-name">Groceries &amp; food</span><span class="slider-val" id="lbl-grocery">₹8,000</span></div>
+              <input type="range" id="sl-grocery" min="2000" max="25000" step="500" value="8000" oninput="calcSim()">
+            </div>
+            <div class="slider-item">
+              <div class="slider-meta"><span class="slider-name">Fuel / transport</span><span class="slider-val" id="lbl-fuel">₹3,000</span></div>
+              <input type="range" id="sl-fuel" min="500" max="10000" step="250" value="3000" oninput="calcSim()">
+            </div>
+            <div class="slider-item">
+              <div class="slider-meta"><span class="slider-name">Rent</span><span class="slider-val" id="lbl-rent">₹18,000</span></div>
+              <input type="range" id="sl-rent" min="5000" max="80000" step="1000" value="18000" oninput="calcSim()">
+            </div>
+            <div class="slider-item">
+              <div class="slider-meta"><span class="slider-name">Utilities &amp; others</span><span class="slider-val" id="lbl-util">₹5,000</span></div>
+              <input type="range" id="sl-util" min="1000" max="15000" step="500" value="5000" oninput="calcSim()">
+            </div>
+
+            <div class="canvas-wrap" style="margin-top:0">
+              <div class="canvas-title">Expense breakdown — now vs projected</div>
+              <canvas id="chart-sim" height="140"></canvas>
+            </div>
+          </div>
+
+          <div class="impact-box">
+            <div class="impact-box-title">3-month projected impact</div>
+            <div class="impact-row"><span>Current total expenses</span><span class="iv" id="imp-now">₹34,000</span></div>
+            <div class="impact-row"><span>Projected total</span><span class="iv" id="imp-proj">₹37,900</span></div>
+            <div class="impact-row"><span>Food &amp; grocery rise</span><span class="iup" id="imp-gd">+₹1,200</span></div>
+            <div class="impact-row"><span>Fuel rise</span><span class="iup" id="imp-fd">+₹540</span></div>
+            <div class="impact-row"><span>Rent rise (est.)</span><span class="iup" id="imp-rd">+₹900</span></div>
+            <div class="impact-row"><span>Utilities rise</span><span class="iup" id="imp-ud">+₹300</span></div>
+            <div class="impact-total">
+              <div>
+                <div class="impact-total-label">Extra per month</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px" id="imp-pct-text">by August 2026</div>
+              </div>
+              <div class="impact-total-val" id="imp-extra">+₹2,940</div>
+            </div>
+            <div class="stress-section">
+              <div class="stress-label-row">
+                <span>Financial stress score</span>
+                <span id="imp-stress-label">Moderate</span>
+              </div>
+              <div class="stress-track"><div class="stress-fill" id="imp-stress-bar" style="width:40%"></div></div>
+              <div class="stress-note" id="imp-stress-note">Inflation is noticeable. Consider adjusting discretionary spending.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ALERTS ══ -->
+      <div class="section" id="sec-alerts">
+        <div class="section-header">
+          <h2><em>Crisis alerts</em> — active signals</h2>
+          <p>Priority-ranked by impact probability and time horizon</p>
+        </div>
+        <div class="alert-list">
+          <div class="alert-item">
+            <div class="alert-stripe stripe-red"></div>
+            <div class="alert-body">
+              <span class="alert-tag atag-red">Critical · 5–8 days</span>
+              <div class="alert-title">Tomato price spike imminent — Karnataka, TN, AP</div>
+              <div class="alert-detail">Wholesale prices rose 28% this week at Bengaluru APMC. Drought stress in key producing districts. Retail impact expected within 5–8 days. Recommend stocking alternatives or buying now at current prices.</div>
+            </div>
+            <div class="alert-time">2h ago</div>
+          </div>
+
+          <div class="alert-item">
+            <div class="alert-stripe stripe-red"></div>
+            <div class="alert-body">
+              <span class="alert-tag atag-red">High · 6–10 weeks</span>
+              <div class="alert-title">Coffee prices to rise 20–25% by Q3 2026</div>
+              <div class="alert-detail">Global arabica futures surged 32%. Brazilian crop damage confirmed at Minas Gerais. Indian roasters absorbing costs currently — retail hike is coming. Stock up on whole beans now.</div>
+            </div>
+            <div class="alert-time">1d ago</div>
+          </div>
+
+          <div class="alert-item">
+            <div class="alert-stripe stripe-amber"></div>
+            <div class="alert-body">
+              <span class="alert-tag atag-amber">Medium · 4–6 weeks</span>
+              <div class="alert-title">Petrol price revision likely next month</div>
+              <div class="alert-detail">Brent crude above $88/bbl for 3+ weeks. OMC losses accumulating. Government may revise retail prices upward by ₹2–5/L. Factor this into commute and delivery cost planning.</div>
+            </div>
+            <div class="alert-time">3d ago</div>
+          </div>
+
+          <div class="alert-item">
+            <div class="alert-stripe stripe-amber"></div>
+            <div class="alert-body">
+              <span class="alert-tag atag-amber">Medium · 3–4 months</span>
+              <div class="alert-title">Electronics 8–12% more expensive by Q4</div>
+              <div class="alert-detail">NAND flash supply is tightening globally. Combined with INR depreciation and import duties, mid-range laptops and smartphones are likely to cost more by October. Favourable window to buy is now.</div>
+            </div>
+            <div class="alert-time">5d ago</div>
+          </div>
+
+          <div class="alert-item">
+            <div class="alert-stripe stripe-green"></div>
+            <div class="alert-body">
+              <span class="alert-tag atag-green">Good news · 4–6 weeks</span>
+              <div class="alert-title">Cooking oil prices likely to ease</div>
+              <div class="alert-detail">Palm oil exports from Malaysia recovering after labour normalisation. Import duty review underway. Sunflower and blended oil prices may ease 5–8% over the next month. No need to bulk-buy now.</div>
+            </div>
+            <div class="alert-time">1w ago</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ RECO ══ -->
+      <div class="section" id="sec-reco">
+        <div class="section-header">
+          <h2><em>Smart buying</em> recommendations</h2>
+          <p>Actionable decisions for the next 30–90 days</p>
+        </div>
+        <div class="reco-grid">
+          <div class="reco-card">
+            <span class="reco-action-pill pill-buy">Buy now</span>
+            <div class="reco-title">Laptop or smartphone</div>
+            <div class="reco-body">NAND flash prices rising and rupee weakening. Electronics are 8–15% cheaper today than they'll likely be in 3 months. This is your buying window.</div>
+            <div class="reco-arrow">Savings window closes ~Aug 2026 →</div>
+          </div>
+          <div class="reco-card">
+            <span class="reco-action-pill pill-buy">Stock up</span>
+            <div class="reco-title">Coffee (whole beans)</div>
+            <div class="reco-body">Retail prices haven't caught up with futures markets yet. Buy 2–3 months' supply now. Expect 20–25% price increases on shelves within 8 weeks.</div>
+            <div class="reco-arrow">Save est. ₹300–500 per pack →</div>
+          </div>
+          <div class="reco-card">
+            <span class="reco-action-pill pill-buy">Buy before July</span>
+            <div class="reco-title">Festive electronics</div>
+            <div class="reco-body">If you were planning to buy during Diwali sales, reconsider — supply cost is rising. Pre-festive prices may actually be lower than the discounted festive price on an inflated base.</div>
+            <div class="reco-arrow">Act before Q3 →</div>
+          </div>
+          <div class="reco-card">
+            <span class="reco-action-pill pill-wait">Delay purchase</span>
+            <div class="reco-title">Furniture</div>
+            <div class="reco-body">Timber and textile input costs are softening globally. Indian retail furniture prices expected to dip 6–10% over the next quarter. Wait unless you have an urgent need.</div>
+            <div class="reco-arrow">Wait until Sep 2026 →</div>
+          </div>
+          <div class="reco-card">
+            <span class="reco-action-pill pill-wait">Don't bulk-buy</span>
+            <div class="reco-title">Cooking oil</div>
+            <div class="reco-body">Palm oil supply recovering. Prices may ease 5–8% in 6 weeks. No reason to stock up — prices are heading down, not up.</div>
+            <div class="reco-arrow">Prices ease by Aug 2026 →</div>
+          </div>
+          <div class="reco-card">
+            <span class="reco-action-pill pill-alt">Switch to alternative</span>
+            <div class="reco-title">Tomatoes → capsicum or zucchini</div>
+            <div class="reco-body">Tomato spike is likely temporary (4–6 weeks). Substitute with capsicum, canned tomatoes, or zucchini in recipes for now. Return when monsoon supply recovers.</div>
+            <div class="reco-arrow">Temporary switch saves ~₹600/mo →</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ REGIONAL ══ -->
+      <div class="section" id="sec-regional">
+        <div class="section-header">
+          <h2><em>Regional</em> inflation snapshot</h2>
+          <p>Prices vary by state, rainfall, crop region, and fuel taxes</p>
+        </div>
+        <div class="region-tabs">
+          <button class="region-tab active" onclick="switchRegion(this,'ka')">Karnataka</button>
+          <button class="region-tab" onclick="switchRegion(this,'mh')">Maharashtra</button>
+          <button class="region-tab" onclick="switchRegion(this,'dl')">Delhi NCR</button>
+          <button class="region-tab" onclick="switchRegion(this,'tn')">Tamil Nadu</button>
+        </div>
+        <div class="region-grid" id="region-grid"></div>
+
+        <div class="canvas-wrap" style="margin-top:20px">
+          <div class="canvas-title">State-wise food inflation comparison (%)</div>
+          <canvas id="chart-regional" height="160"></canvas>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ── Nav ──────────────────────────────────────────────────────── */
+const TITLES = {
+  forecast: 'Price Forecast',
+  why: 'Why It\'s Happening',
+  simulator: 'Budget Impact',
+  alerts: 'Crisis Alerts',
+  reco: 'Smart Buys',
+  regional: 'Regional Snapshot',
+};
+function switchSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('page-title').textContent = TITLES[id];
+}
+
+/* ── Simulator ────────────────────────────────────────────────── */
+function fmt(n){ return '₹'+Math.round(n).toLocaleString('en-IN'); }
+let simChart = null;
+
+function calcSim(){
+  const income  = +document.getElementById('sl-income').value;
+  const grocery = +document.getElementById('sl-grocery').value;
+  const fuel    = +document.getElementById('sl-fuel').value;
+  const rent    = +document.getElementById('sl-rent').value;
+  const util    = +document.getElementById('sl-util').value;
+
+  document.getElementById('lbl-income').textContent  = fmt(income);
+  document.getElementById('lbl-grocery').textContent = fmt(grocery);
+  document.getElementById('lbl-fuel').textContent    = fmt(fuel);
+  document.getElementById('lbl-rent').textContent    = fmt(rent);
+  document.getElementById('lbl-util').textContent    = fmt(util);
+
+  const total = grocery+fuel+rent+util;
+  const gd = Math.round(grocery*0.15);
+  const fd = Math.round(fuel*0.18);
+  const rd = Math.round(rent*0.05);
+  const ud = Math.round(util*0.06);
+  const extra = gd+fd+rd+ud;
+  const proj = total+extra;
+
+  document.getElementById('imp-now').textContent   = fmt(total);
+  document.getElementById('imp-proj').textContent  = fmt(proj);
+  document.getElementById('imp-gd').textContent    = '+'+fmt(gd);
+  document.getElementById('imp-fd').textContent    = '+'+fmt(fd);
+  document.getElementById('imp-rd').textContent    = '+'+fmt(rd);
+  document.getElementById('imp-ud').textContent    = '+'+fmt(ud);
+  document.getElementById('imp-extra').textContent = '+'+fmt(extra);
+
+  const ratio = extra/income;
+  const pct   = Math.min(Math.round(ratio*400),100);
+  document.getElementById('imp-stress-bar').style.width = pct+'%';
+
+  let label, note;
+  if(pct<20){label='Low';note='Inflation has minor impact. Small adjustments should suffice.';}
+  else if(pct<50){label='Moderate';note='Inflation is noticeable. Consider adjusting discretionary spending.';}
+  else if(pct<75){label='High';note='Significant budget pressure. Review non-essential expenses now.';}
+  else{label='Critical';note='Severe affordability risk. Proactive financial planning strongly recommended.';}
+  document.getElementById('imp-stress-label').textContent = label;
+  document.getElementById('imp-stress-note').textContent  = note;
+
+  // Update bar chart
+  if(simChart){
+    simChart.data.datasets[0].data = [grocery, fuel, rent, util];
+    simChart.data.datasets[1].data = [grocery+gd, fuel+fd, rent+rd, util+ud];
+    simChart.update('none');
+  }
+}
+
+/* ── Charts ───────────────────────────────────────────────────── */
+const CHART_DEFAULTS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0D0D0C', bodyFont: { family:'DM Mono', size:11 }, titleFont: { family:'DM Sans', size:12 } } },
+  scales: {
+    x: { grid: { color: 'rgba(13,13,12,0.05)' }, ticks: { font: { family:'DM Mono', size:10 }, color:'#7A7A74' } },
+    y: { grid: { color: 'rgba(13,13,12,0.05)' }, ticks: { font: { family:'DM Mono', size:10 }, color:'#7A7A74' } }
+  }
+};
+
+window.addEventListener('load', () => {
+  /* Main forecast chart */
+  const months = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May'];
+  const ctxMain = document.getElementById('chart-main').getContext('2d');
+  new Chart(ctxMain, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label:'Tomatoes', data:[100,112,128,140,138,130,122,118,115,120,125,138], borderColor:'#C84B2F', borderWidth:2, tension:0.4, pointRadius:0, fill:false },
+        { label:'Petrol',   data:[100,104,108,112,116,118,120,121,122,120,119,118], borderColor:'#E8A030', borderWidth:2, tension:0.4, pointRadius:0, fill:false },
+        { label:'Coffee',   data:[100,106,112,118,124,128,125,122,120,118,117,116], borderColor:'#7A5C38', borderWidth:2, tension:0.4, pointRadius:0, fill:false },
+        { label:'Oil',      data:[100,101,102,103,102,101,100,99,99,100,101,104],   borderColor:'#2C6E49', borderWidth:1.5, tension:0.4, pointRadius:0, fill:false, borderDash:[4,4] },
+      ]
+    },
+    options: { ...CHART_DEFAULTS, maintainAspectRatio: false,
+      plugins: { ...CHART_DEFAULTS.plugins,
+        legend: { display:true, position:'top', labels:{ font:{family:'DM Mono',size:10}, color:'#7A7A74', boxWidth:12, boxHeight:2, padding:16 } }
+      }
+    }
+  });
+
+  /* Simulator chart */
+  const ctxSim = document.getElementById('chart-sim').getContext('2d');
+  simChart = new Chart(ctxSim, {
+    type: 'bar',
+    data: {
+      labels: ['Groceries','Fuel','Rent','Utilities'],
+      datasets: [
+        { label:'Now',       data:[8000,3000,18000,5000], backgroundColor:'rgba(13,13,12,0.15)', borderRadius:4 },
+        { label:'Projected', data:[9200,3540,18900,5300], backgroundColor:'rgba(200,75,47,0.7)',  borderRadius:4 },
+      ]
+    },
+    options: { ...CHART_DEFAULTS,
+      plugins: { ...CHART_DEFAULTS.plugins,
+        legend: { display:true, labels:{ font:{family:'DM Mono',size:10}, color:'#7A7A74', boxWidth:10, boxHeight:10 } }
+      }
+    }
+  });
+
+  /* Regional chart */
+  const ctxReg = document.getElementById('chart-regional').getContext('2d');
+  new Chart(ctxReg, {
+    type: 'bar',
+    data: {
+      labels: ['Karnataka','Maharashtra','Delhi NCR','Tamil Nadu','Rajasthan','Gujarat','Punjab'],
+      datasets: [{
+        data: [8.4, 7.1, 6.2, 9.1, 5.9, 6.8, 5.3],
+        backgroundColor: ['#C84B2F','#E8A030','#E8A030','#C84B2F','#2C6E49','#E8A030','#2C6E49'],
+        borderRadius: 4,
+      }]
+    },
+    options: { ...CHART_DEFAULTS,
+      plugins: { ...CHART_DEFAULTS.plugins, legend: { display:false } }
+    }
+  });
+
+  /* Init sim */
+  calcSim();
+  renderRegion('ka');
+});
+
+/* ── Regional ─────────────────────────────────────────────────── */
+const REGIONS = {
+  ka: [
+    { name:'Food inflation',  val:'8.4%',    tag:'↑ High', up:true },
+    { name:'Tomato · BAPMC', val:'₹58/kg',  tag:'↑ +38% WoW', up:true },
+    { name:'Petrol · BLR',   val:'₹102.8/L',tag:'High state tax', up:true },
+    { name:'Onion',           val:'₹34/kg',  tag:'→ Stable', up:false },
+    { name:'Rent pressure',   val:'High',    tag:'Tech corridor', up:true },
+    { name:'Overall CPI',     val:'5.9%',    tag:'↑ Above national', up:true },
+  ],
+  mh: [
+    { name:'Food inflation',  val:'7.1%',     tag:'↑ Elevated', up:true },
+    { name:'Onion · Nashik',  val:'₹28/kg',   tag:'↓ Recovery', up:false },
+    { name:'Petrol · MUM',    val:'₹106.3/L', tag:'Highest metro', up:true },
+    { name:'Vegetables',      val:'Mixed',    tag:'→ Volatile', up:false },
+    { name:'Rent pressure',   val:'Very High',tag:'Mumbai premium', up:true },
+    { name:'Overall CPI',     val:'5.3%',     tag:'→ Near national avg', up:false },
+  ],
+  dl: [
+    { name:'Food inflation',  val:'6.2%',     tag:'↑ Moderate-High', up:true },
+    { name:'Petrol · DEL',    val:'₹94.7/L',  tag:'↓ Lower state tax', up:false },
+    { name:'Vegetables',      val:'↑ 22%',    tag:'Import-dependent', up:true },
+    { name:'Electricity',     val:'Stable',   tag:'Subsidised tariff', up:false },
+    { name:'Rent pressure',   val:'High',     tag:'NCR expansion', up:true },
+    { name:'Overall CPI',     val:'5.0%',     tag:'→ National avg', up:false },
+  ],
+  tn: [
+    { name:'Food inflation',  val:'9.1%',     tag:'↑ Drought impact', up:true },
+    { name:'Tomato · CHE',    val:'₹65/kg',   tag:'↑ Highest in India', up:true },
+    { name:'Petrol · CHE',    val:'₹100.9/L', tag:'→ Steady', up:false },
+    { name:'Rice',            val:'₹42/kg',   tag:'→ Export zone stable', up:false },
+    { name:'Rent pressure',   val:'Moderate', tag:'IT corridor rising', up:true },
+    { name:'Overall CPI',     val:'6.4%',     tag:'↑ Above national', up:true },
+  ],
+};
+
+function switchRegion(btn, key){
+  document.querySelectorAll('.region-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderRegion(key);
+}
+
+function renderRegion(key){
+  const items = REGIONS[key];
+  const grid = document.getElementById('region-grid');
+  grid.innerHTML = items.map(d => `
+    <div class="region-card" style="animation:fadeUp 0.25s ease both;">
+      <div class="region-card-name">${d.name}</div>
+      <div class="region-card-val">${d.val}</div>
+      <div class="region-card-tag ${d.up ? 'stat-delta up' : 'stat-delta dn'}">${d.tag}</div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
